@@ -4,7 +4,8 @@ import argparse
 
 
 def show_certificate():
-    parser = argparse.ArgumentParser(description='Compares two configuration files and shows a difference.')
+    desc = 'Compares two configuration files and shows a difference.'
+    parser = argparse.ArgumentParser(description=desc)
     parser.add_argument('first_file')
     parser.add_argument('second_file')
 
