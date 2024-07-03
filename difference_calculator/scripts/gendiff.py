@@ -4,22 +4,33 @@ import argparse
 import json
 
 
+def formating(key, dictionary):
+    value = dictionary[key]
+    if isinstance(value, bool):
+        dictionary[key] = str(value).lower()
+
+
 def generate_diff(path1, path2):
     file1 = json.load(open(path1))
     file2 = json.load(open(path2))
 
     keys = sorted(list(file1 | file2))
     status = ['{']
-    for el in keys:
-        if el in file1 and el in file2 and file1[el] == file2[el]:
-            status.append(f'    {el}: {json.dumps(file1[el])}')
-        elif el in file1 and el in file2 and file1[el] != file2[el]:
-            status.append(f'  - {el}: {json.dumps(file1[el])}')
-            status.append(f'  + {el}: {json.dumps(file2[el])}')
-        elif el in file1 and el not in file2:
-            status.append(f'  - {el}: {json.dumps(file1[el])}')
+    for key in keys:
+        if key in file1 and key in file2 and file1[key] == file2[key]:
+            formating(key, file1)
+            status.append(f'    {key}: {file1[key]}')
+        elif key in file1 and key in file2 and file1[key] != file2[key]:
+            formating(key, file1)
+            formating(key, file2)
+            status.append(f'  - {key}: {file1[key]}')
+            status.append(f'  + {key}: {file2[key]}')
+        elif key in file1 and key not in file2:
+            formating(key, file1)
+            status.append(f'  - {key}: {file1[key]}')
         else:
-            status.append(f'  + {el}: {json.dumps(file2[el])}')
+            formating(key, file2)
+            status.append(f'  + {key}: {file2[key]}')
     status.append('}')
     return '\n'.join(status)
 
