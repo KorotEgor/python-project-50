@@ -9,3 +9,8 @@ lint:
 
 reinstall: build
 	python3 -m pip install --user --force-reinstall dist/*.whl
+
+
+test: lint
+	poetry run pytest
+

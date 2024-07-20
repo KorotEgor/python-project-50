@@ -16,6 +16,7 @@ gendiff = "difference_calculator.scripts.gendiff:show_certificate"
 
 [tool.poetry.group.dev.dependencies]
 flake8 = "^7.1.0"
+pytest = "^8.2.2"
 
 [build-system]
 requires = ["poetry-core"]
