@@ -13,5 +13,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: install
+        run: make env
+
       - name: test
         run: make test
