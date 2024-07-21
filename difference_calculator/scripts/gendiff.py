@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import yaml
 
 
 def formating(key, dictionary):
@@ -10,10 +11,20 @@ def formating(key, dictionary):
         dictionary[key] = str(value).lower()
 
 
-def generate_diff(path1, path2):
-    file1 = json.load(open(path1))
-    file2 = json.load(open(path2))
+def load(path):
+    ext = path.split('.')[-1]
+    match ext:
+        case 'json':
+            return json.load(open(path))
+        case 'yml' | 'yaml':
+            return yaml.safe_load(open(path))
+        case _:
+            raise ValueError(f'unknown ext - {ext}')
 
+
+def generate_diff(path1, path2):
+    file1 = load(path1)
+    file2 = load(path2)
     keys = sorted(list(file1 | file2))
     status = ['{']
     for key in keys:
