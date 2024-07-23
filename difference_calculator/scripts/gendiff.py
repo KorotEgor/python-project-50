@@ -5,10 +5,19 @@ import json
 import yaml
 
 
-def formating(key, dictionary):
-    value = dictionary[key]
+_SAME = 'same'
+_SECOND = 'second'
+_FIRST = 'first'
+
+
+def formating(value, ind):
     if isinstance(value, bool):
-        dictionary[key] = str(value).lower()
+        return str(value).lower()
+    if value is None:
+        return 'null'
+    if isinstance(value, list):
+        return stylish(value, ind)
+    return value
 
 
 def load(path):
@@ -22,28 +31,67 @@ def load(path):
             raise ValueError(f'unknown ext - {ext}')
 
 
+def diff(file1, file2):
+    keys = sorted(list(file1 | file2))
+    status = []
+    for key in keys:
+        if key in file1 and key in file2 and file1[key] == file2[key]:
+            if isinstance(file1[key], dict):
+                value = diff(file1[key], file2[key])
+            else:
+                value = file1[key]
+            status.append({"status": _SAME, "key": key, "value": value})
+        elif key in file1 and key in file2 and file1[key] != file2[key]:
+            if isinstance(file1[key], dict) and isinstance(file2[key], dict):
+                value = diff(file1[key], file2[key])
+                status.append({"status": _SAME, "key": key, "value": value})
+            elif isinstance(file1[key], dict):
+                value = diff(file1[key], file1[key])
+                status.append({"status": _FIRST, "key": key, "value": value})
+                status.append({"status": _SECOND, "key": key, "value": file2[key]})
+            elif isinstance(file2[key], dict):
+                value = diff(file2[key], file2[key])
+                status.append({"status": _FIRST, "key": key, "value": file1[key]})
+                status.append({"status": _SECOND, "key": key, "value": value})
+            else:
+                status.append({"status": _FIRST, "key": key, "value": file1[key]})
+                status.append({"status": _SECOND, "key": key, "value": file2[key]})
+        elif key in file1 and key not in file2:
+            if isinstance(file1[key], dict):
+                value = diff(file1[key], file1[key])
+            else:
+                value = file1[key]
+            status.append({"status": _FIRST, "key": key, "value": value})
+        else:
+            if isinstance(file2[key], dict):
+                value = diff(file2[key], file2[key])
+            else:
+                value = file2[key]
+            status.append({"status": _SECOND, "key": key, "value": value})
+    return status
+
+
+def stylish(status, ind=0):
+    draw = ['{']
+    for row in status:
+        match row['status']:
+            case 'same':
+                begin = '    '
+            case 'second':
+                begin = '  + '
+            case 'first':
+                begin = '  - '
+        value = formating(row['value'], ind + 1)
+        draw.append(f'{"    " * ind}{begin}{row["key"]}: {value}')
+    draw.append('    ' * ind + '}')
+    return '\n'.join(draw)
+
+
 def generate_diff(path1, path2):
     file1 = load(path1)
     file2 = load(path2)
-    keys = sorted(list(file1 | file2))
-    status = ['{']
-    for key in keys:
-        if key in file1 and key in file2 and file1[key] == file2[key]:
-            formating(key, file1)
-            status.append(f'    {key}: {file1[key]}')
-        elif key in file1 and key in file2 and file1[key] != file2[key]:
-            formating(key, file1)
-            formating(key, file2)
-            status.append(f'  - {key}: {file1[key]}')
-            status.append(f'  + {key}: {file2[key]}')
-        elif key in file1 and key not in file2:
-            formating(key, file1)
-            status.append(f'  - {key}: {file1[key]}')
-        else:
-            formating(key, file2)
-            status.append(f'  + {key}: {file2[key]}')
-    status.append('}')
-    return '\n'.join(status)
+    status = diff(file1, file2)
+    return stylish(status)
 
 
 def show_certificate():

@@ -5,6 +5,8 @@ import pytest
 _TESTS = (
 	('test_files/file1.json', 'test_files/file2.json', 'test_files/right_file1_file2.txt'),
 	('test_files/file1.yml', 'test_files/file2.yml', 'test_files/right_file1_file2.txt'),
+    ('test_files/comp1.yaml', 'test_files/comp2.yaml', 'test_files/right_comp1_comp2.txt'),
+    ('test_files/comp1.json', 'test_files/comp2.json', 'test_files/right_comp1_comp2.txt'),
 )
 
 
