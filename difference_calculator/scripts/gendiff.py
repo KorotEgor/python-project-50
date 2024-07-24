@@ -5,6 +5,8 @@ import json
 
 import yaml
 
+from difference_calculator.style import stylish, plain
+
 _SAME = "same"
 _SECOND = "second"
 _FIRST = "first"
@@ -56,37 +58,21 @@ def diff(file1, file2):
     return status
 
 
-def formating(value, ind):
-    if isinstance(value, bool):
-        return str(value).lower()
-    if value is None:
-        return "null"
-    if isinstance(value, list):
-        return stylish(value, ind)
-    return value
+def draw(status, style):
+    match style:
+        case "plain":
+            return plain.plain(status)
+        case "stylish":
+            return stylish.stylish(status)
+        case _:
+            raise ValueError(f"unknown style - {style}")
 
 
-def stylish(status, ind=0):
-    draw = ["{"]
-    for row in status:
-        match row["status"]:
-            case "same":
-                begin = "    "
-            case "second":
-                begin = "  + "
-            case "first":
-                begin = "  - "
-        value = formating(row["value"], ind + 1)
-        draw.append(f'{"    " * ind}{begin}{row["key"]}: {value}')
-    draw.append("    " * ind + "}")
-    return "\n".join(draw)
-
-
-def generate_diff(path1, path2):
+def generate_diff(path1, path2, style):
     file1 = load(path1)
     file2 = load(path2)
     status = diff(file1, file2)
-    return stylish(status)
+    return draw(status, style)
 
 
 def show_certificate():
@@ -94,10 +80,16 @@ def show_certificate():
     parser = argparse.ArgumentParser(description=desc)
     parser.add_argument("first_file")
     parser.add_argument("second_file")
-    parser.add_argument("-f", "--format", help="set format of output")
+    parser.add_argument(
+        "-f",
+        "--format",
+        dest="format",
+        default="stylish",
+        help="set format of output",
+    )
 
     args = parser.parse_args()
-    print(generate_diff(args.first_file, args.second_file))
+    print(generate_diff(args.first_file, args.second_file, args.format))
 
 
 if __name__ == "__main__":
