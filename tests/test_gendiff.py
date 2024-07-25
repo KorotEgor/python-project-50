@@ -1,4 +1,4 @@
-from difference_calculator.scripts import gendiff
+from gendiff.scripts import gendiff
 
 import pytest                                                                                                               
 

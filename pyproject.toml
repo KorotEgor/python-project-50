@@ -5,7 +5,7 @@ description = ""
 authors = ["korotkov_egor <korotkovegor10@gmail.com>"]
 readme = "README.md"
 packages = [
-  { include = "difference_calculator" },
+  { include = "gendiff" },
 ]
 
 [tool.poetry.dependencies]
@@ -13,7 +13,7 @@ python = "^3.10"
 pyyaml = "^6.0.1"
 
 [tool.poetry.scripts]
-gendiff = "difference_calculator.scripts.gendiff:show_certificate"
+gendiff = "gendiff.scripts.gendiff:show_certificate"
 
 [tool.poetry.group.dev.dependencies]
 flake8 = "^7.1.0"
