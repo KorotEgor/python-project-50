@@ -68,7 +68,7 @@ def draw(status, style):
             raise ValueError(f"unknown style - {style}")
 
 
-def generate_diff(path1, path2, style):
+def generate_diff(path1, path2, style="stylish"):
     file1 = load(path1)
     file2 = load(path2)
     status = diff(file1, file2)
